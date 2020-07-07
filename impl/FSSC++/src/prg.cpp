@@ -33,8 +33,7 @@ PseudoRandomGenerator :: PseudoRandomGenerator() {
 }
 
 void PseudoRandomGenerator::generate_random_number(unsigned char* out,
-                            unsigned char* key, uint64_t output_size,
-                            uint32_t num_keys) {
+                            unsigned char* key, uint64_t output_size) {
 #ifndef AESNI
     // check if there is aes-ni instruction
     uint32_t eax, ebx, ecx, edx;

@@ -1,3 +1,6 @@
+#ifndef PRG_H
+#define PRG_H
+
 #include "openssl-aes.h"
 #include<openssl/aes.h>
 #include<openssl/evp.h>
@@ -11,11 +14,12 @@ class PseudoRandomGenerator {
         PseudoRandomGenerator();
 
         void generate_random_number(unsigned char* out,
-                            unsigned char* key, uint64_t output_size,
-                            uint32_t num_keys);
+                            unsigned char* key, uint64_t output_size);
         int prf_len = 4;
     private:
         
         AES_KEY* _aes_keys;
 
 };
+
+#endif
