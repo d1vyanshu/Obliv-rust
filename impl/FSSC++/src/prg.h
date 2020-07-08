@@ -15,7 +15,7 @@ class PseudoRandomGenerator {
 
         void generate_random_number(unsigned char* out,
                             unsigned char* key, uint64_t output_size);
-        int prf_len = 4;
+        int num_keys = 4;
     private:
         
         AES_KEY* _aes_keys;

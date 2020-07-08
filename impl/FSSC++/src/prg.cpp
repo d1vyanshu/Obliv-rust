@@ -10,9 +10,9 @@ PseudoRandomGenerator :: PseudoRandomGenerator() {
 #endif
 
 
-    _aes_keys = (AES_KEY*) malloc(sizeof(AES_KEY)*prf_len);
+    _aes_keys = (AES_KEY*) malloc(sizeof(AES_KEY)*num_keys);
 
-    for(int i=0; i < prf_len; i++) {
+    for(int i=0; i < num_keys; i++) {
         unsigned char rand_bytes[16];
         if(!RAND_bytes(rand_bytes, 16)) {
             printf("Random bytes failed.\n");
@@ -46,7 +46,7 @@ void PseudoRandomGenerator::generate_random_number(unsigned char* out,
     // Do Matyas–Meyer–Oseas one-way compression function using different AES keys to get desired
     // output length
     uint32_t required_num_keys = output_size/16;
-    if (required_num_keys> prf_len) {
+    if (required_num_keys> num_keys) {
         free(temp_keys);
         temp_keys = (AES_KEY*) malloc(sizeof(AES_KEY)*required_num_keys); 
         for (int i = 0; i < required_num_keys; i++) {
@@ -65,6 +65,7 @@ void PseudoRandomGenerator::generate_random_number(unsigned char* out,
 #endif
         }
     }
+
     for (int i = 0; i < required_num_keys; i++) {
 #ifndef AESNI
         if ((ecx & bit_AES) > 0) {
@@ -76,8 +77,10 @@ void PseudoRandomGenerator::generate_random_number(unsigned char* out,
         aesni_encrypt(key, out + (i*16), &temp_keys[i]);
 #endif
     }
+
     for (int i = 0; i < output_size; i++) {
         out[i] = out[i] ^ key[i%16];
     }
+    
     _aes_keys = temp_keys;
 }
