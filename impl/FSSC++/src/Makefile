@@ -1,9 +1,9 @@
 PREFIX = /usr/local
 dbg = -g
 CC=g++
-CFLAGS=-fomit-frame-pointer -maes -std=c++11 -msse4.2 -fno-strict-aliasing -pedantic -Wall -Wextra -Wunreachable-code -Wmissing-declarations -Wunused-function -Wno-overlength-strings -Wno-deprecated-declarations -O3
-LDFLAGS= -L/usr/lib/x86_64-linux-gnu -Wl,-Bstatic -lcrypto -Wl,-Bdynamic -ldl -lssl -lgmpxx -lgmp -lpthread
-SOURCES=  fss-test.cpp fss-client.cpp fss-server.cpp prg.cpp
+CFLAGS=-fomit-frame-pointer -maes -std=c++11 -msse4.2 -fno-strict-aliasing -pedantic -Wall -Wextra -Wunreachable-code -Wmissing-declarations -Wunused-function -Wno-overlength-strings -Wno-deprecated-declarations -O3 
+LDFLAGS= -L/usr/lib/x86_64-linux-gnu -Wl,-Bstatic -lcrypto -Wl,-Bdynamic -ldl -lssl -lgmpxx -lgmp -lpthread -I$GOOGLETESTDIR/include -L$GOOGLETESTDIR/lib -lgtest
+SOURCES=  fss-client.cpp fss-server.cpp prg.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=testfss
 

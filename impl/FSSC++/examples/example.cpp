@@ -1,7 +1,7 @@
-#include "prg.h"
-#include "utils.h"
-#include "fss-client.h"
-#include "fss-server.h"
+#include "../src/prg.h"
+#include "../src/utils.h"
+#include "../src/fss-client.h"
+#include "../src/fss-server.h"
 
 #include<iostream>
 
