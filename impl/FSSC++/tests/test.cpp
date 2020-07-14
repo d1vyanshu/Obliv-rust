@@ -31,19 +31,19 @@ namespace {
             fclient.generate_tree_equal(&prg, &k0, &k1, a, b);
 
             for(int j=0; j<100; j++) {
-                mpz_class ans0, ans1, fin;
+                uint32_t ans0, ans1, fin;
 
                 input = rand();
 
                 if(input==a) output = b;
                 else output = 0;
 
-                ans0 = fserver.evaluate_equal(&prg, &k0, input);
-                ans1 = fserver.evaluate_equal(&prg, &k1, input);
+                ans0 = fserver.evaluate_equal(&prg, 0, &k0, input);
+                ans1 = fserver.evaluate_equal(&prg, 1, &k1, input);
 
-                fin = ans0-ans1;
+                fin = (ans0+ans1)%(1<<domain_bits);
 
-                EXPECT_EQ(output, fin.get_ui()) << "Output different for a = "<<a<<" b = "<<b<<"for input = "<<input<<endl;
+                EXPECT_EQ(output, fin) << "Output different for a = "<<a<<" b = "<<b<<"for input = "<<input<<endl;
             }
 
         }
@@ -55,7 +55,7 @@ namespace {
     TEST(DPF, bits64) {
         PseudoRandomGenerator prg;
         for(int i=0; i<1000; i++) {
-            uint64_t a,b, input, output, domain_bits = 64, num_parties =2;
+            uint64_t a,b, input, output, domain_bits = 64, num_parties = 2;
 
             KeyEqual k0, k1;
 
@@ -69,19 +69,19 @@ namespace {
             fclient.generate_tree_equal(&prg, &k0, &k1, a, b);
 
             for(int j=0; j<100; j++) {
-                mpz_class ans0, ans1, fin;
+                uint64_t ans0, ans1, fin;
 
                 input = rand();
 
                 if(input==a) output = b;
                 else output = 0;
 
-                ans0 = fserver.evaluate_equal(&prg, &k0, input);
-                ans1 = fserver.evaluate_equal(&prg, &k1, input);
+                ans0 = fserver.evaluate_equal(&prg, 0, &k0, input);
+                ans1 = fserver.evaluate_equal(&prg, 1, &k1, input);
 
-                fin = ans0-ans1;
+                fin = (ans0+ans1)%(1<<domain_bits);
 
-                EXPECT_EQ(output, fin.get_ui()) << "Output different for a = "<<a<<" b = "<<b<<"for input = "<<input<<endl;
+                EXPECT_EQ(output, fin) << "Output different for a = "<<a<<" b = "<<b<<"for input = "<<input<<endl;
             }
 
         }

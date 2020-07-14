@@ -5,29 +5,18 @@
 #include<gmpxx.h>
 #include<cmath>
 
-struct CorrWordTest {
+struct CorrWordEquality {
     unsigned char cs[16];
     unsigned char tr;
     unsigned char tl;
 };
 
-struct KeyTest {
+struct KeyEqual {
     unsigned char s[16];
-    CorrWordTest* cw;
+    CorrWordEquality* cw;
     uint64_t w;
 };
 
-struct CorrWordEquality {
-    unsigned char cs[2][16];
-    unsigned char ct[2];
-};
-
-struct KeyEqual {
-    unsigned char s[2][16];
-    unsigned char t[2];
-    CorrWordEquality* cw[2];
-    mpz_class w;
-};
 
 struct CorrWordLessThan {
     unsigned char cs[2][16];
@@ -51,7 +40,6 @@ struct MultiPartyKey {
 inline int get_bit(uint64_t n, uint64_t pos) {
     return (n & ( 1 << (64-pos))) >> (64-pos);
 }
-
 
 inline uint64_t byteArr2Int64(unsigned char* arr) {
     uint64_t i = ((unsigned long) arr[7] << 56) | ((unsigned long)arr[6] << 48) | ((unsigned long)arr[5] << 40) |

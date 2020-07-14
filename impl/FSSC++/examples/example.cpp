@@ -1,7 +1,7 @@
-#include "../src/prg.h"
-#include "../src/utils.h"
-#include "../src/fss-client.h"
-#include "../src/fss-server.h"
+#include "prg.h"
+#include "utils.h"
+#include "fss-client.h"
+#include "fss-server.h"
 
 #include<iostream>
 
@@ -12,34 +12,29 @@ int main() {
     uint64_t b=2;
     uint32_t domain_bits = 10;
     uint32_t num_parties = 2;
-    KeyEqual k0;
-    KeyEqual k1;
+
 
     //PRG to use in schemes, can be initialised only once.
     PseudoRandomGenerator prg;
-
-    //Code for point function sharing between two parties
+    //Code for dpf with improvement
+    KeyEqual k0;
+    KeyEqual k1;
     FssClient fclient_pointfunc(domain_bits, num_parties);
     FssServer fserver_pointfunc(&fclient_pointfunc);
 
-
+    uint64_t a1,a2;
     fclient_pointfunc.generate_tree_equal(&prg, &k0, &k1, a, b);
+    a1 = fserver_pointfunc.evaluate_equal(&prg, 0, &k0, a);
+    a2 = fserver_pointfunc.evaluate_equal(&prg, 1, &k1, a);
 
-    mpz_class ans0, ans1;
+    cout<<"Answer should be 2: "<<(a1+a2)%(1<<domain_bits)<<endl;
 
-    ans0 = fserver_pointfunc.evaluate_equal(&prg, &k0, a);
-    ans1 = fserver_pointfunc.evaluate_equal(&prg, &k1, a);
-    mpz_class fin;
-    fin = ans0-ans1;
+    a1 = fserver_pointfunc.evaluate_equal(&prg, 0, &k0, a-1);
+    a2 = fserver_pointfunc.evaluate_equal(&prg, 1, &k1, a-1);
 
-    cout << "FSS Eq Match (should be non-zero): " << fin << endl;
+    cout<<"Answer should be zero: "<<(a1+a2)%(1<<domain_bits)<<endl;
+    //end
 
-    ans0 = fserver_pointfunc.evaluate_equal(&prg, &k0, a-1);
-    ans1 = fserver_pointfunc.evaluate_equal(&prg, &k1, a-1);
-
-    fin = ans0-ans1;
-    cout<< "Should be zero" << fin<<endl;
-    //end 
 
     //Code for less than interval function sharing between two parties
     KeyLessThan k2;
@@ -51,10 +46,10 @@ int main() {
     fclient_interval.generate_tree_lessthan(&prg, &k2, &k3, a, b);
     uint64_t lt_ans0, lt_ans1;
 
-    lt_ans0 = fserver_interval.evaluate_lessthan(&prg, &k2, (a));
-    lt_ans1 = fserver_interval.evaluate_lessthan(&prg, &k3, (a));
+    lt_ans0 = fserver_interval.evaluate_lessthan(&prg, &k2, (a-1));
+    lt_ans1 = fserver_interval.evaluate_lessthan(&prg, &k3, (a-1));
     uint64_t lt_final = lt_ans0 - lt_ans1;
-    cout << "FSS Lt Match (should be non-zero): " << lt_final << endl;
+    cout << "FSS Lt Match (should be 2): " << lt_final << endl;
 
     lt_ans0 = fserver_interval.evaluate_lessthan(&prg, &k2, a+1);
     lt_ans1 = fserver_interval.evaluate_lessthan(&prg, &k3, a+1);
@@ -78,7 +73,7 @@ int main() {
     uint32_t mp_ans2 = fserver_mparty.evaluate_equal_Mparty(&pseudo, &keys[2], a);
 
     uint32_t mp_final = mp_ans0 ^ mp_ans1 ^ mp_ans2;
-    cout << "FSS Eq Multi-Party Match (should be non-zero): " << mp_final << endl;
+    cout << "FSS Eq Multi-Party Match (should be 2): " << mp_final << endl;
 
     mp_ans0 = fserver_mparty.evaluate_equal_Mparty(&pseudo, &keys[0], a+1);
     mp_ans1 = fserver_mparty.evaluate_equal_Mparty(&pseudo, &keys[1], a+1);
