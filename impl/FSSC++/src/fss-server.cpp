@@ -139,3 +139,62 @@ uint32_t FssServer::evaluate_equal_Mparty(PseudoRandomGenerator* prg, MultiParty
     free(temp_out);
     return final_ans;
 }
+
+uint64_t FssServer::evaluate_test_tree(PseudoRandomGenerator*prg, int party, KeyTest* k, uint64_t x) {
+    bool t;
+
+    if(party) t=true;
+    else t=false;
+
+    unsigned char s[16];
+    memcpy(s, k->s, 16);
+
+    for(int i=0; i<domain_bits; i++) {
+        unsigned char out[48];
+        prg->generate_random_number(out, s, 48);
+
+        int a = get_bit(x, (64-domain_bits+i+1));
+
+        if(t) {
+            unsigned char tempxor[34];
+            memcpy(tempxor, k->cw[i].cs, 16);
+            memcpy((unsigned char*) (tempxor+17), k->cw[i].cs, 16);
+            tempxor[16] = k->cw[i].tl;
+            tempxor[33] = k->cw[i].tr;
+
+            for(int j=0; j<34; j++) {
+                out[j] = out[j] ^ tempxor[j];
+            }
+        }
+
+        if(a) {
+            memcpy(s, (unsigned char*)(out+17), 16);
+            t = out[33]%2;
+        }
+        else {
+            memcpy(s, out, 16);
+            t = out[16]%2;
+        }
+
+    }
+
+    uint64_t convs = convert(s, domain_bits);
+    uint64_t ans;
+    if(t) {
+        if(party) {
+            ans = ((1<<domain_bits) - convs)%(1<<domain_bits);
+            ans = (ans + (1<<domain_bits) - k->w)%(1<<domain_bits);
+        }
+
+        else 
+            ans = (convs + k->w)%(1<<domain_bits);
+    }
+    else {
+        if(party) 
+            ans = ((1<<domain_bits) - convs)%(1<<domain_bits);
+        else
+            ans = convs%(1<<domain_bits);
+    }
+
+    return ans;
+}

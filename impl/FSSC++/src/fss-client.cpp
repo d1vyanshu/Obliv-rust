@@ -599,3 +599,117 @@ void FssClient::generate_tree_equal_Mparty(PseudoRandomGenerator* prg, uint64_t 
     }
     free(s);
 }
+
+void FssClient::tree_test(PseudoRandomGenerator *prg, KeyTest* k0, KeyTest* k1, uint64_t input, uint64_t output) {
+    k0->cw = (CorrWordTest*) malloc(sizeof(CorrWordTest) * (domain_bits));
+    k1->cw = (CorrWordTest*) malloc(sizeof(CorrWordTest) * (domain_bits));
+    bool a,not_a;
+
+    unsigned char s_party0[16];
+    unsigned char s_party1[16];
+    bool t_party0 = false;
+    bool t_party1 = true;
+
+    if(!RAND_bytes((unsigned char*) (s_party0), 16)) {
+        printf("Random bytes failed\n");
+        exit(1);
+    }
+
+    if(!RAND_bytes((unsigned char*) (s_party1), 16)) {
+        printf("Random bytes failed\n");
+        exit(1);
+    }
+
+    memcpy(k0->s, s_party0, 16);
+    memcpy(k1->s, s_party1, 16);
+
+    for(int i=0; i<domain_bits; i++) {
+        unsigned char s0[32];
+        unsigned char s1[32];
+        bool t0[2];
+        bool t1[2];
+
+        unsigned char out0[48];
+        unsigned char out1[48];
+
+        prg->generate_random_number(out0, s_party0, 48);
+        prg->generate_random_number(out1, s_party1, 48);
+
+        memcpy((unsigned char*)s0, out0, 16);
+        memcpy((unsigned char*)(s0+16), (unsigned char*) (out0 + 17), 16);
+        t0[0] = out0[16]%2;
+        t0[1] = out0[33]%2;
+        
+        memcpy((unsigned char*)s1, out1, 16);
+        memcpy((unsigned char*)(s1+16), (unsigned char*) (out1 + 17), 16);
+        t1[0] = out1[16]%2;
+        t1[1] = out1[33]%2;
+
+        a = get_bit(input, (64-domain_bits+i+1));
+
+        int keep,lose;
+        if(a) {
+            keep = 1;
+            lose = 0;
+        }
+        else {
+            keep = 0;
+            lose = 1;
+        }
+
+        unsigned char cs[16];
+        unsigned char ct[2];
+
+        for(int j=0; j<16; j++) {
+            cs[j] = s0[16*lose+j] ^ s1[16*lose+j];
+        }
+
+        ct[0] = t0[0] ^ t1[0] ^ a ^ 1;
+        ct[1] = t0[1] ^ t1[1] ^ a;
+
+        memcpy(k0->cw[i].cs, cs, 16);
+        memcpy(k1->cw[i].cs, cs, 16);
+        k0->cw[i].tl = ct[0];
+        k1->cw[i].tl = ct[0];
+        k0->cw[i].tr = ct[1];
+        k1->cw[i].tr = ct[1];
+
+        // unsigned char s0temp[16];
+        // unsigned char s1temp[16];
+
+        if(t_party0) {
+            for(int j=0; j<16; j++) {
+                s_party0[j] = s0[16*keep+j] ^ cs[j];
+            }
+            t_party0 = t0[keep] ^ ct[keep];
+        }
+        else {
+            memcpy(s_party0, (unsigned char*)(s0 + 16*keep), 16);
+            t_party0 = t0[keep];
+        }
+
+        if(t_party1) {
+            for(int j=0; j<16; j++) {
+                s_party1[j] = s1[16*keep+j] ^ cs[j];
+            }
+            t_party1 = t1[keep] ^ ct[keep];
+        }
+        else {
+            memcpy(s_party1, (unsigned char*)(s1 + 16*keep), 16);
+            t_party1 = t1[keep];
+        }
+
+    }
+
+    uint64_t convs0 = convert(s_party0, domain_bits);
+    uint64_t convs1 = convert(s_party1, domain_bits);
+
+    if(t_party1) {
+        k0->w = ((convs0-convs1+(1<<domain_bits))%(1<<domain_bits) -output + (1<<domain_bits))%(1<<domain_bits);
+        k1->w = ((convs0-convs1+(1<<domain_bits))%(1<<domain_bits) -output + (1<<domain_bits))%(1<<domain_bits);
+    }
+    else {
+        k0->w = ((output+convs1)%(1<<domain_bits) +(1<<domain_bits) -convs0)%(1<<domain_bits);
+        k1->w = ((output+convs1)%(1<<domain_bits) +(1<<domain_bits) -convs0)%(1<<domain_bits);
+    }
+}

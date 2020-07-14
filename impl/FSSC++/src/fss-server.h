@@ -16,6 +16,7 @@ class FssServer {
         uint64_t evaluate_lessthan(PseudoRandomGenerator* prg, KeyLessThan* k, uint64_t x);
         uint32_t evaluate_equal_Mparty(PseudoRandomGenerator* prg, MultiPartyKey* key, 
         uint32_t x);
+        uint64_t evaluate_test_tree(PseudoRandomGenerator* prg, int party, KeyTest* k, uint64_t x);
         mpz_class prime;
         uint32_t domain_bits;
         uint32_t num_parties;

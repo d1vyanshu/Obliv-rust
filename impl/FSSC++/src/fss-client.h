@@ -14,6 +14,9 @@ class FssClient {
     public:
         FssClient(uint32_t num_bits, uint32_t numparties);
 
+        void tree_test(PseudoRandomGenerator* prg, KeyTest* k0, KeyTest* k1,
+        uint64_t input, uint64_t output);
+
         void generate_tree_equal(PseudoRandomGenerator* prg, KeyEqual* k0, 
         KeyEqual* k1, uint64_t input, uint64_t output);
 

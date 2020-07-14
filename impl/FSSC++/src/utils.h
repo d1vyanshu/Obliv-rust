@@ -3,6 +3,19 @@
 
 #include<gmp.h>
 #include<gmpxx.h>
+#include<cmath>
+
+struct CorrWordTest {
+    unsigned char cs[16];
+    unsigned char tr;
+    unsigned char tl;
+};
+
+struct KeyTest {
+    unsigned char s[16];
+    CorrWordTest* cw;
+    uint64_t w;
+};
 
 struct CorrWordEquality {
     unsigned char cs[2][16];
@@ -54,5 +67,14 @@ inline uint32_t byteArr2Int32(unsigned char* arr) {
             (unsigned char)(arr[3]));
     return a;
 }
+
+inline uint64_t convert(unsigned char* s, uint32_t domain_bits) {
+        uint64_t ans =0;
+        for(int i=0; i<domain_bits; i++) {
+            ans += pow(2,domain_bits-1-i) * s[i];
+        }
+        return ans;
+}
+
 
 #endif
